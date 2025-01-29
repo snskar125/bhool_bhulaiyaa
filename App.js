@@ -14,8 +14,10 @@ import Base from "./src/Components/Base";
 import Cloud from "./src/Components/Cloud";
 import Drop from "./src/Components/Drop";
 import { getRandomInt } from "./src/Utils";
+import KalmanFilter from "kalmanjs";
 
 Accelerometer.setUpdateInterval(16);
+const kf = new KalmanFilter({ R: 0.01, Q: 3 });
 
 export default function App() {
   const acceleroX = useSharedValue(0);
@@ -27,7 +29,7 @@ export default function App() {
   const Start = () => {
     setOver(false);
     subscription.current = Accelerometer.addListener(({ x }) => {
-      acceleroX.value = x.toFixed(3);
+      acceleroX.value = kf.filter(x.toFixed(3));
     });
     interval.current = setInterval(() => {
       const id = Math.random().toString();
